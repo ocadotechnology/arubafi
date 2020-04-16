@@ -1,0 +1,16 @@
+*.pyc
+__pycache__
+*.idea
+*.egg-info
+venv
+bin
+lib
+pip-selfcheck.json
+pyvenv.cfg
+.eggs
+.DS_Store
+cp_dbs_tables.txt
+dist/
+build
+mistifi-*
+.tox/

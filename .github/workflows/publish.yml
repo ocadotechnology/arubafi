@@ -1,0 +1,81 @@
+# This workflows will upload a Python Package using Twine when a release is created and tagged
+# For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
+
+name: Depolying the package to prod PyPi
+
+on: 
+  release:
+    types: [published]
+    tags: 
+      - '*'
+
+
+jobs:
+  
+  # Deploy to Test PyPi
+  build_and_test:
+    name: Build and Test the module
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v2
+    
+    - name: Set up Python
+      uses: actions/setup-python@v1
+
+    - name: Build dependancies
+      run: pip install -r requirements.txt
+
+    - name: Install dependencies for PyPi test upload
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools wheel twine
+
+    - name: Test with pytest
+      run: pytest
+
+    - name: Install localy
+      run: pip install -e .
+
+    #- name: Build, check and publish to Test PyPi
+    #  env:
+    #    TWINE_USERNAME: ${{ secrets.PYPI_TOKEN_USERNAME }}
+    #    TWINE_PASSWORD: ${{ secrets.PYPI_TEST_TOKEN }}
+    #  run: |
+    #    python setup.py sdist bdist_wheel
+    #    twine check dist/*
+    #    twine upload --repository-url https://test.pypi.org/legacy/ --skip-existing dist/*
+
+  # Deploy it to PyPi
+  deploy:
+    name: Deploy to PyPi
+    needs: build_and_test
+    runs-on: ubuntu-latest
+
+    # Only deploy if a new tag has been created
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools wheel twine
+
+    - name: Build sdist bdist_wheel
+      run: |
+        python setup.py sdist bdist_wheel
+
+    - name: Publish
+      env:
+        TWINE_USERNAME: ${{ secrets.PYPI_TOKEN_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_PROD_TOKEN }}
+      run: |
+        twine upload dist/*

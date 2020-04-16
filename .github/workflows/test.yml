@@ -1,0 +1,53 @@
+# This workflows will upload the package to the Test PyPi whenever pushed to it.
+# For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
+
+
+
+name: Depolying the package to test PyPi
+
+on:
+  push:
+    branches-ignore: master
+
+
+jobs:
+
+  # Deploy to Test PyPi
+  build_and_test:
+    name: Build, Test and deploy the module to Test PyPi
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v1
+
+    - name: Build dependancies
+      run: pip install -r requirements.txt
+
+    - name: Install dependencies for PyPi test upload
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools wheel twine
+
+    - name: Test with pytest
+      run: |
+        pytest
+
+    - name: Install localy
+      run: |
+        pip install -e .
+
+    - name: Build sdist bdist_wheel
+      run: |
+        python setup.py sdist bdist_wheel
+
+    - name: Publish to Test PyPi
+      env:
+        TWINE_USERNAME: ${{ secrets.PYPI_TOKEN_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_TEST_TOKEN }}
+      run: |
+        twine check dist/*
+        twine upload --repository-url https://test.pypi.org/legacy/ --skip-existing dist/*
