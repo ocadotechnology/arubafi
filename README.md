@@ -1,10 +1,12 @@
+# IGNORE ALL BELOW AS WORK STILL VERY MUCH IN PROGRESS
+
 # Arubafi
 
-Arubafi is a highly scalable Python module enabling full interfacing with the Mist RestAPI.
+Arubafi is a Python module for interfacing with the Aruba's stuff.
 
 ## Motivation
 
-To provide a scalable, easy to use and easy to contribute to module that will be able to interface to the fullest with the Mist Systems cloud for wired and wireless.
+To provide a scalable, easy to use and easy to contribute to module that will be able to interface with Aruba's APIs.
 
 # Installation
 
@@ -53,17 +55,6 @@ You must call the `comms()` method on your instance, to setup the communication 
 aw = comms()
 ```
 
-## Interfacing with the cloud URIs
-If a specific resource method for a specific URI is not defined the main method that can be used is the `resource()` one. The resource methods defined start with `Resource method` in the docstring.
-
-For example, GET-ing `/self` can be achieved by either the `resource()` method or the `whoami()` one.
-```python
->>> whoami = mist_user.whoami()
->>> rwhoami = mist_user.resource("GET", uri="/self")
->>> print(whoami == rwhoami)
-True
-```
-
 # Additional
 ##Debugging
 
@@ -73,7 +64,7 @@ Each method then resets logging to `ERROR`, so you need to set logging level bef
 **Ex. 1: DEBUG level**
 ```python
 >>> logzero.loglevel(logging.DEBUG)
->>> mist_user.whoami()
+>>> mm.whoami()
 ```
 ```
 efdsd
@@ -82,31 +73,30 @@ efdsd
 **Ex. 2: INFO level**
 ```python
 >>> logzero.loglevel(logging.INFO)
->>> mist_user.whoami()
+>>> mm.whoami()
 ```
 ```
-[I 200326 14:58:23 mistifi:547] Calling whoami()
-[I 200326 14:58:23 mistifi:548] kwargs in: {}
-[I 200326 14:58:23 mistifi:511] Calling resource()
-[I 200326 14:58:23 mistifi:471] Calling _params()
-[I 200326 14:58:23 mistifi:472] kwargs in: {'uri': '/self'}
-[I 200326 14:58:23 mistifi:395] Calling _resource_url()
-[I 200326 14:58:23 mistifi:396] kwargs in: {'uri': '/self'}
-[I 200326 14:58:23 mistifi:333] Calling _api_call()
-[I 200326 14:58:23 mistifi:334] Method is: GET
-[I 200326 14:58:23 mistifi:335] Calling URL: https://api.mist.com/api/v1/self
-[I 200326 14:58:23 mistifi:346] Response status code: 200
+[I 200326 14:58:23 arubafi:547] Calling whoami()
+[I 200326 14:58:23 arubafi:548] kwargs in: {}
+[I 200326 14:58:23 arubafi:511] Calling resource()
+[I 200326 14:58:23 arubafi:471] Calling _params()
+[I 200326 14:58:23 arubafi:472] kwargs in: {'uri': '/self'}
+[I 200326 14:58:23 arubafi:395] Calling _resource_url()
+[I 200326 14:58:23 arubafi:396] kwargs in: {'uri': '/self'}
+[I 200326 14:58:23 arubafi:333] Calling _api_call()
+[I 200326 14:58:23 arubafi:334] Method is: GET
+[I 200326 14:58:23 arubafi:346] Response status code: 200
 ```
 
 **Ex. 3: Examples of error output**
 Here no log level was set.
 ```python
->>> mist_user.whoami()
+>>> mm.whoami()
 ```
 ```
-[E 200326 14:58:24 mistifi:351] Response Error:
+[E 200326 14:58:24 arubafi:351] Response Error:
     {"detail":"Method \"GET\" not allowed."}
-[E 200326 14:58:24 mistifi:351] Response Error:
+[E 200326 14:58:24 arubafi:351] Response Error:
     {"detail":"CSRF Failed: CSRF token missing or incorrect."}
 ```
 
@@ -115,14 +105,14 @@ The general TODO list is:
 - add more/all URIs
 
 # Contributing
-Thank you for helping us develop Mistifi. We're happy to accept contribution of any kind. Feel free to submit feature requests and bug reports under Issues.
+Thank you for helping us develop `arubafi`. We're happy to accept contribution of any kind. Feel free to submit feature requests and bug reports under Issues.
 
 ## Submitting a pull request guidelines
 
 - All pull requests require a code review.
-- Any merge conflicts needs to be resolved.
+- Any merge conflicts need to be resolved.
 - Include unit tests when you contribute new features and bugs, as they help to a) prove that your code works correctly, and b) guard against future breaking changes to lower the maintenance cost.
-- All tests needs to pass before we will review your PR.
+- All tests need to pass before we will review your PR.
 - When you respond to changes based on comments from a code review, please reply with "Done." so that we get a notification.
 
 ## Contributors
