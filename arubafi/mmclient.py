@@ -31,16 +31,16 @@ class MMClient:
         Password for Mobility Master login
 
     api_version: `str`, optional, default: 1
-        The API version used for the calls. 
+        The API version used for the calls.
 
     port: `str`, optional, default: 4343
         The port for the connection
 
     verify: `str`, optional, default: False
-        Same as requests verify, but defaults to False as most MM 
-        implementations are expected to not use certs. Either a boolean, in 
-        which case it controls whether we verify the server’s TLS 
-        certificate, or a string, in which case it must be a path to a CA 
+        Same as requests verify, but defaults to False as most MM
+        implementations are expected to not use certs. Either a boolean, in
+        which case it controls whether we verify the server’s TLS
+        certificate, or a string, in which case it must be a path to a CA
         bundle to use.
 
     timeout: `int`, optional, default: 10
@@ -49,18 +49,18 @@ class MMClient:
     Examples
     --------
     **Ex. 1:** Passing in all required parameters
-    
+
     >>> import getpass
     >>> aos = MMClient(
-            mm_host="arubamm.domain.com", 
-            username="apiuser", 
+            mm_host="arubamm.domain.com",
+            username="apiuser",
             password=getpass.getpass()
         )
-    
-    Instance can be created withou some or all of above attributes. User 
-    will be prompted for either one or more `mm_host`, `username`, 
+
+    Instance can be created withou some or all of above attributes. User
+    will be prompted for either one or more `mm_host`, `username`,
     `password`.
-    
+
     **Ex. 2:** passing in just the host.
 
     >>> aos = MMClient(mm_host="arubamm.domain.com")
@@ -68,7 +68,7 @@ class MMClient:
     MM API password for user `donkey.kong` required:
 
     **Ex. 3:** Passing in just the username and password
-    
+
     >>> password = getpass.getpass()
     Password:
 
@@ -89,7 +89,6 @@ class MMClient:
 
         # Set logging to ERROR to not display anything by default
         logzero.loglevel(logging.ERROR)
-        
 
         #
         # If MM URL or IP is not provided, ask for it
@@ -132,7 +131,7 @@ class MMClient:
         # The login credentials dictionary
         self.login_payload = {
             'username': self.username,
-            'password': self.password, 
+            'password': self.password,
         }
 
         # We require data be returned in JSON format
@@ -148,6 +147,7 @@ class MMClient:
         self.session.verify = self.verify
         self.session.timeout = self.timeout
         self.session.mount(self.mm_base_api_url, HTTPAdapter(max_retries=3))
+        self.session.verify = self.verify
 
         assert_status_hook = lambda response, *args, **kwargs: response.raise_for_status()
         self.session.hooks["response"] = [assert_status_hook]
@@ -158,9 +158,9 @@ class MMClient:
     def _params(self, **kwargs):
         '''Parameters configurator for passing into the requests module
 
-        Meant for parameters that get passed with the `params` attribute of 
+        Meant for parameters that get passed with the `params` attribute of
         requests.
-        
+
         Args:
         -----
         ``config_path``: `str`, default '/md'
@@ -178,16 +178,16 @@ class MMClient:
                 $gte: matches a value which is greater than or equal to the filter
                 $lt: matches a value which is less than the filter
                 $lte: matches a value which is less than or equal to the filter
-                $in: pattern matches the filter value. E.g., if filter says “ap”, 
+                $in: pattern matches the filter value. E.g., if filter says “ap”,
                 “default-ap” and “ap- grp1” will both match
                 $nin: pattern does not match the filter. Opposite of $in
 
         filter: `str`, optional
             A JSON data filter expression for the GET request.
-            If defined it will override the `profile_name` and `filter_oper` 
+            If defined it will override the `profile_name` and `filter_oper`
             arguments completely.
- 
-            Ex.: 
+
+            Ex.:
             [ {"ap_sys_prof.profile-name" : { "$in" : ["def"] } } ]
             returns all profiles who's names include the 'def' string
 
@@ -195,35 +195,35 @@ class MMClient:
             returns the profile who's name mathces the whole 'default' string
 
         limit: `str`, optional
-            The maximum number of instances of an object that a single GET 
+            The maximum number of instances of an object that a single GET
             request should return.
 
         count: `str`, optional
-            List of fully qualified parameter name for which count operation 
+            List of fully qualified parameter name for which count operation
             needs to be performed.
             Ex.: 'int_vlan.int_vlan_ip_helper'
 
         total: `str`, optional
-            The total number of instances of that object existing in system at 
-            that given configuration node. It should be set to 0 when first 
-            query is done and the count field specified in the result should be 
+            The total number of instances of that object existing in system at
+            that given configuration node. It should be set to 0 when first
+            query is done and the count field specified in the result should be
             put here (optionally) for subsequent queries.
-        
+
         offset: `str`, optional
-            Conveys the number of the entry from which we should start the next 
+            Conveys the number of the entry from which we should start the next
             data set.
-        
+
         sort: `str`, optional
-            The data from the GET request can be sorted based on a single field 
-            (currently, multi-parameter or nested sorts are not supported). 
+            The data from the GET request can be sorted based on a single field
+            (currently, multi-parameter or nested sorts are not supported).
             There can only be one sort filter per request.
             Works in the form or <oper><key>, where <oper> is either + or - and
             <key> is the fully qualified object to which to sort on
 
             **Ex.:**
-            '-int_vlan.int_vlan_mtu.value' will sort in descending order on the 
+            '-int_vlan.int_vlan_mtu.value' will sort in descending order on the
             value parameter of 'int_vlan.int_vlan_mtu' object
-        
+
         Returns:
         --------
         params: dict
@@ -252,12 +252,12 @@ class MMClient:
             ]
             params['filter'] = json.dumps(profile_name_filter)
 
-        # If filter provided it will override whatever was passed in with 
+        # If filter provided it will override whatever was passed in with
         # either `profile_name` or `filter_oper` attributes
         if 'filter' in kwargs:
             if type(kwargs['filter']) is str:
                 params['filter'] = kwargs['filter']
-            else: 
+            else:
                 params['filter'] = json.dumps(kwargs['filter'])
 
         # Other optional Aruba API defined parameters
@@ -279,14 +279,14 @@ class MMClient:
 
     def _resource_url(self, resource):
         '''The resource URL formatter
-        
+
         Will add the preceding '/' if not provided in the resource string
 
         Args:
         -----
         resource: `str`
             The endpoint resource, e.g. 'configuration/object/ap_sys_prof'
-        
+
         Returns:
         --------
         The full URL string to the requested resource.
@@ -306,7 +306,7 @@ class MMClient:
     def _api_call(self, method, url, **kwargs):
         '''The API call handler.
 
-        This method is used by `resource`. kwargs passed in get passed to the 
+        This method is used by `resource`. kwargs passed in get passed to the
         requests.session instance
 
         Args:
@@ -317,8 +317,8 @@ class MMClient:
         url: `str`
             URL with the endpoint included
 
-        **kwargs: 
-        These are passed into the requests and include the `params` and `json` 
+        **kwargs:
+        These are passed into the requests and include the `params` and `json`
         attributes which are the exact same ones used by requests.
 
         Returns:
@@ -328,13 +328,14 @@ class MMClient:
         '''
         logger.info("Calling _api_call()")
         logger.info(f"Method is: {method.upper()}")
+        logger.info(f"SSL verify (False or cert path): {self.verify}")
 
-        response = getattr(self.session, method.lower())(url, **kwargs)
+        response = getattr(self.session, method.lower())(url, verify=self.verify, **kwargs)
         #response.raise_for_status()
         logger.debug(f"Full URL: {response.url}")
 
-        # If response is wrong, for example if someone passes in the wrong 
-        # endpoint return Nonwe, None for both values
+        # If response is wrong, for example if someone passes in the wrong
+        # endpoint return https://gitlab.ocado.tech/Net-wifi/wireless-passphrase-change/-/merge_requests/2, None for both values
         try:
             jresp = response.json()
             logger.debug(f"Response JSON: {jresp}")
@@ -363,7 +364,7 @@ class MMClient:
 
         Returns:
         --------
-        Either the response from the sucesfull login attempt or the error from 
+        Either the response from the sucesfull login attempt or the error from
         it.
         '''
         login_url = f'{self.mm_base_api_url}/api/login'
@@ -407,7 +408,7 @@ class MMClient:
             self._access_token = login_resp['_global_result']['UIDARUBA']
             logger.debug(login_resp)
 
-            # Reset logging to ERROR as this method is called through _api_call and 
+            # Reset logging to ERROR as this method is called through _api_call and
             # is not reset as if it were with by calling resource
             logzero.loglevel(logging.ERROR)
 
@@ -416,18 +417,18 @@ class MMClient:
             logger.error("Login failed")
             logger.debug(login_resp_err)
 
-            # Reset logging to ERROR as this method is called through _api_call and 
+            # Reset logging to ERROR as this method is called through _api_call and
             # is not reset as if it were with by calling resource
             logzero.loglevel(logging.ERROR)
 
             return login_resp_err
 
     def _kwargs_modify(self, api_endpoint, data=None, **kwargs):
-        '''Modifies the `kwargs` depending if either POST-ing data or GET-ing 
+        '''Modifies the `kwargs` depending if either POST-ing data or GET-ing
         it.
 
-        This is used with resource methods where it adds keys to the `kwargs` 
-        allready passed in. 
+        This is used with resource methods where it adds keys to the `kwargs`
+        allready passed in.
 
         Args:
         -----
@@ -435,7 +436,7 @@ class MMClient:
             The hardcoded endpoint for the specific resource method.
         data: dict, optional
             If data passed in the HTTP method defaults to POST and the
-        **kwargs: 
+        **kwargs:
             These are passed into `self._params` and used in requests with the
             params attribute.
 
@@ -476,16 +477,16 @@ class MMClient:
 
         jresp, jresp_err = self._api_call("get", logout_url)
 
-        # Reset logging to ERROR as this method is called through _api_call and 
+        # Reset logging to ERROR as this method is called through _api_call and
         # is not reset as if it were with by calling resource
         logzero.loglevel(logging.ERROR)
 
         return jresp, jresp_err
 
     def write_mem(self, config_path=None):
-        '''Saves the config at the given `config_path` level. 
+        '''Saves the config at the given `config_path` level.
 
-        Defaults to `/md` if none provided. 
+        Defaults to `/md` if none provided.
 
         Args:
         -----
@@ -505,42 +506,42 @@ class MMClient:
 
         jresp, jresp_err = self._api_call("POST", url, params=params)
 
-        # Reset logging to ERROR as this method is called through _api_call and 
+        # Reset logging to ERROR as this method is called through _api_call and
         # is not reset as if it were with by calling resource
         logzero.loglevel(logging.ERROR)
 
         return jresp, jresp_err
 
     def resource(self, method, endpoint, jpayload=None, **kwargs):
-        '''Actiones the HTTP request type defined with the `method` attribute to 
+        '''Actiones the HTTP request type defined with the `method` attribute to
         the defined `endpoint`.
 
-        This is the main function of the class, which does all the interfacing 
+        This is the main function of the class, which does all the interfacing
         with the API. It can be called by its own to GET or POST to a resource,
         but the preffered way is to define a resource method below that utilises
-        this one for interfacing. The difference between the 2 apporoaches is 
+        this one for interfacing. The difference between the 2 apporoaches is
         shown in the Examples.
-        
+
         Args:
         -----
         method: `str`
-            Either `GET` or `POST`. Case insensitive.    
+            Either `GET` or `POST`. Case insensitive.
         endpoint: `str`
             An rendpoint esource path (ex.: "configuration/object/ap_sys_prof").
             Can be with or without the leading `/`.
             The endpoint string is split at `/` and the final list entry used
-            as the `search` string used with the `self._params` method.    
+            as the `search` string used with the `self._params` method.
         jpayload: dict, optional
-            JSON formated payload. Same as requests json sent with the body of 
+            JSON formated payload. Same as requests json sent with the body of
             the request. With this passed in, the HTTP method is always POST.
-        **kwargs:        
-            These get passed to the `_params` method, so read what is accepted 
+        **kwargs:
+            These get passed to the `_params` method, so read what is accepted
             from there.
 
         Returns:
         --------
         The JSON response and None for error if everything went OK.
-        The JSON response and JSON error response in case of the response 
+        The JSON response and JSON error response in case of the response
         getting an error.
 
         Examples:
@@ -549,56 +550,56 @@ class MMClient:
         in an MMClient instance.
 
         >>> apsys_prof = {
-            'bkup_lms_ip': {'bkup-lms-ip': '10.11.11.11'}, 
-            'lms_hold_down_period': {'lms-hold-down-period': 10}, 
-            'lms_ip': {'lms-ip':'10.10.10.11'}, 
-            'lms_preemption': {}, 
+            'bkup_lms_ip': {'bkup-lms-ip': '10.11.11.11'},
+            'lms_hold_down_period': {'lms-hold-down-period': 10},
+            'lms_ip': {'lms-ip':'10.10.10.11'},
+            'lms_preemption': {},
             'profile-name': 'test-01.ap_sys_prof'}
 
         >>> aos_obj = MMClient()
-        
-        **Ex. 1:** Calling a dedicated `/configuration/object/ap_sys_prof` endpoint 
+
+        **Ex. 1:** Calling a dedicated `/configuration/object/ap_sys_prof` endpoint
         method. (THE PREFFERED WAY)
-        
+
         a) POST `apsys_prof` data to the '/md/Test_empty' level
         >>> aos_obj.ap_sys_profile(
-                data=apsys_prof, 
+                data=apsys_prof,
                 config_path='/md/Test_empty')
-        
-        b) GET the exact ap_sys_profile derfined with 
+
+        b) GET the exact ap_sys_profile derfined with
         `profile_name=test-01.ap_sys_prof` at the `/md/Test_empty` level
 
         >>> aos_obj.ap_sys_profile(
-                profile_name='test-01.ap_sys_prof', 
+                profile_name='test-01.ap_sys_prof',
                 config_path='/md/Test_empty')
-        
+
         **Ex. 2:** The same as Ex. 1, but with calling the resource method directly.
-        
+
         a) POST `apsys_prof` data at the '/md/Test_empty' level
         >>> aos_obj.resource(
-                'POST', 
-                endpoint='/configuration/object/ap_sys_prof', 
-                config_path='/md', 
+                'POST',
+                endpoint='/configuration/object/ap_sys_prof',
+                config_path='/md',
                 jpayload=apsys_prof)
 
-        b) GET the exact ap_sys_profile derfined with 
+        b) GET the exact ap_sys_profile derfined with
         `profile_name=test-01.ap_sys_prof` at the `/md/Test_empty` level
-        
+
         >>> aos_obj.resource(
-                'GET', 
-                endpoint='configuration/object/ap_sys_prof', 
-                config_path='/md/Test_empty', 
+                'GET',
+                endpoint='configuration/object/ap_sys_prof',
+                config_path='/md/Test_empty',
                 profile_name='test-01.ap_sys_prof')
 
         '''
         logger.info("Calling _resource()")
 
-        # Add the 'search' string used with the filter option used by the 
-        # self._params method. 
+        # Add the 'search' string used with the filter option used by the
+        # self._params method.
         # For example this is the last element in the splited endpoint string.
         # For 'configuration/object/ap_sys_prof' this would be 'ap_sys_prof'
         kwargs['search'] = endpoint.split('/')[-1]
-        
+
         # Get the params from the passed in kwargs
         params = self._params(**kwargs)
 
@@ -607,29 +608,29 @@ class MMClient:
 
         # Get the JSON response and error
         jresp, jresp_err = self._api_call(method, resource_url, params=params, json=jpayload)
-        
+
         # Reset logging to ERROR
         logzero.loglevel(logging.ERROR)
 
         return jresp, jresp_err
 
 
-    '''Below are defined resource methods, which are the ones with a 
-    hardcoded endpoint object. 
+    '''Below are defined resource methods, which are the ones with a
+    hardcoded endpoint object.
     '''
     def ap_sys_profile(self, data=None, **kwargs):
-        '''GET or POST to an `ap_sys_prof` endpoint object. 
+        '''GET or POST to an `ap_sys_prof` endpoint object.
 
-        If `data` passed method is POST and takes presedence over other 
-        attributes. 
+        If `data` passed method is POST and takes presedence over other
+        attributes.
 
         Args:
         -----
         data: `str`, optional
-            JSON formated payload. Same as requests json sent with the body of 
-            the request. With this passed in, the HTTP method is always POST.           
-        **kwargs: 
-            These are passed to `self._kwargs_modify` and `self._params` to 
+            JSON formated payload. Same as requests json sent with the body of
+            the request. With this passed in, the HTTP method is always POST.
+        **kwargs:
+            These are passed to `self._kwargs_modify` and `self._params` to
             create a propper request with params.
 
         Returns:
@@ -642,25 +643,25 @@ class MMClient:
         logger.debug(f'Data in: {data}')
 
         kwargs = self._kwargs_modify(
-            'configuration/object/ap_sys_prof', 
-            data, 
+            'configuration/object/ap_sys_prof',
+            data,
             **kwargs)
 
         return self.resource(**kwargs)
 
     def wlan_ssid_profile(self, data=None, **kwargs):
-        '''GET or POST to an `ssid_prof` endpoint object. 
+        '''GET or POST to an `ssid_prof` endpoint object.
 
-        If `data` passed method is POST and takes presedence over other 
-        attributes. 
+        If `data` passed method is POST and takes presedence over other
+        attributes.
 
         Args:
         -----
         data: `str`, optional
-            JSON formated payload. Same as requests json sent with the body of 
-            the request. With this passed in, the HTTP method is always POST.            
-        **kwargs: 
-            These are passed to `self._kwargs_modify` and `self._params` to 
+            JSON formated payload. Same as requests json sent with the body of
+            the request. With this passed in, the HTTP method is always POST.
+        **kwargs:
+            These are passed to `self._kwargs_modify` and `self._params` to
             create a propper request with params.
 
         Returns:
@@ -673,10 +674,8 @@ class MMClient:
         logger.debug(f'Data in: {data}')
 
         kwargs = self._kwargs_modify(
-            'configuration/object/ssid_prof', 
-            data, 
+            'configuration/object/ssid_prof',
+            data,
             **kwargs)
 
         return self.resource(**kwargs)
-
-
