@@ -1,8 +1,6 @@
 import requests
 import xmltodict
-import pprint
 import socket
-import logging
 import getpass
 
 import logging
@@ -144,11 +142,12 @@ class AirWave(metaclass=OnlyOneInstance):
             requests.packages.urllib3.disable_warnings()
             logger.info("Not verifying SSL")
 
+        error_msg = f'Logging into {self.login_url} with username: {self.aw_username}'
+
         try:
             login_resp = self.session.post(
                 self.login_url,
                 data=self.login_payload,
-                timeout=30
                 )
             # Raise an exception if the status code != 2xx
             login_resp.raise_for_status()
@@ -157,31 +156,31 @@ class AirWave(metaclass=OnlyOneInstance):
         except requests.exceptions.ConnectionError as exc:
             logger.exception(f'Got a {exc.__class__.__name__} exception\n')
             logger.error(error_msg)
-            sys.exit(0)
+            exit(0)
         except requests.RequestException as exc:
             logger.exception(f'Got a {exc.__class__.__name__} exception\n')
             logger.error(error_msg)
-            sys.exit(0)
+            exit(0)
         except requests.HTTPError as exc:
             logger.exception(f'Got a {exc.__class__.__name__} exception\n')
             logger.error(error_msg)
-            sys.exit(0)
+            exit(0)
         except requests.URLRequired as exc:
             logger.exception(f'Got a {exc.__class__.__name__} exception\n')
             logger.error(error_msg)
-            sys.exit(0)
+            exit(0)
         except requests.TooManyRedirects as exc:
             logger.exception(f'Got a {exc.__class__.__name__} exception\n')
             logger.error(error_msg)
-            sys.exit(0)
+            exit(0)
         except requests.ConnectTimeout as exc:
             logger.exception(f'Got a {exc.__class__.__name__} exception\n')
             logger.error(error_msg)
-            sys.exit(0)
+            exit(0)
         except requests.ReadTimeout as exc:
             logger.exception(f'Got a {exc.__class__.__name__} exception\n')
             logger.error(error_msg)
-            sys.exit(0)
+            exit(0)
 
 
     #
@@ -277,12 +276,11 @@ class AirWave(metaclass=OnlyOneInstance):
 
         # get the full AMP inventory dict
         amp_inventory = self._full_raw_airwave_inventory()
-        #pprint.pprint(amp_inventory)
+        logger.debug(amp_inventory)
 
         # Iterate through all items and asign them to their respective DB dict
         for item in amp_inventory["amp:amp_ap_list"]["ap"]:
 
-            #pprint.pprint(item)
             item_data = self._all_items_db.setdefault(item["@id"], {})
 
             item_data["lan_ip"] = item.get("lan_ip")
@@ -751,25 +749,6 @@ class AirWave(metaclass=OnlyOneInstance):
 
         return cfqdn
 
-    def get_single_aps_controllerid(self, ap_name=str()):
-        """Returns a controllers `@id` to which the AP `ap_name` is associated
-        to.
-
-        Args
-        ----
-        `ap_name`: string
-            AP's name for which we're trying to get the controller's @id for.
-        """
-        logger.info('Calling get_single_aps_controllerid()')
-
-        ap_db = self.get_apname_to_controllerid_inventory()
-
-        if ap_name not in ap_db:
-            return None
-
-        # Return AP's controller `@id`
-        return ap_db[ap_name]
-
     def get_multiple_aps_controllerid(self, ap_names=None):
         """I have no idea what I wante to achieve with this one TBH.
         Returns a list of controllers `@id` or `None` to which the list of
@@ -791,6 +770,28 @@ class AirWave(metaclass=OnlyOneInstance):
         # Return AP's controller's `@id`
         return ctrl_ids
 
+    def get_aps_controller(self, ap_name):
+        """Returns the APs controller `@id` to which that `ap_name` is
+        associated with.
+
+        You can use this response for getting the controllers FQDN for example.
+
+        Args
+        ----
+        ap_name: str
+            The AP name for which to get the associated controller for.
+
+        Returns
+        -------
+        The APs controlelr @id
+        """
+        logger.info('Calling get_aps_controller()')
+
+        ap_db = self.get_apname_to_controllerid_inventory()
+
+        if ap_name in ap_db:
+            return ap_db[ap_name]
+
     # METHODS THAT NEED WORK ARE FROM HERE ONWARDS
     def get_iapvcs_aps(self):
         """
@@ -810,7 +811,9 @@ class AirWave(metaclass=OnlyOneInstance):
         pass
 
     def get_controllers_aps(self):
-        """Returns a list of APs belonging to the 'controller' (passed in as FQDN
+        """Not implemented currently, so don't use
+
+        Returns a list of APs belonging to the 'controller' (passed in as FQDN
 
         DOES NOT return APs that belong to VCs
 
@@ -852,30 +855,3 @@ class AirWave(metaclass=OnlyOneInstance):
                 cnames_to_aps_db[controller] = contid_to_aplist_db[cid]
 
         return cnames_to_aps_db
-
-    def get_aps_controller(self, ap_name):
-        """Returns the APs controller `@id` to which that `ap_name` is
-        associated with.
-
-        You can use this response for getting the controllers FQDN for example.
-
-        Args
-        ----
-        ap_name: str
-            The AP name for which to get the associated controller for.
-
-        Returns
-        -------
-        The APs controlelr @id
-        """
-        logger.info('Calling get_aps_controller()')
-
-        aps_controller = ""
-        ap_db = self.get_apname_to_controllerid_inventory()
-
-        if ap_name in ap_db:
-            #print(ap_db[ap_name])
-            controller_id = ap_db[ap_name]
-
-        # Return AP's controller's `@id`
-        return aps_controller
