@@ -7,10 +7,6 @@ import logging
 import logzero
 from logzero import logger
 
-# Set the default logging level to ERROR
-logzero.loglevel(logging.ERROR)
-
-
 class OnlyOneInstance(type):
     """Metaclass that allows only one class instance to be created
     """
@@ -95,6 +91,9 @@ class AirWave(metaclass=OnlyOneInstance):
         if "https://" not in self.aw_url:
             self.aw_url = f"https://{self.aw_url}"
         self.login_url = self.aw_url + '/LOGIN'
+
+        # Set logging to ERROR to not display anything by default
+        logzero.loglevel(logging.ERROR)
 
     def comms(self):
         """User prompt for getting username and/or password, if they haven't been

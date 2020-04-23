@@ -6,8 +6,6 @@ import yaml
 import json
 
 from requests.adapters import HTTPAdapter
-from pprint import pprint
-
 
 import logging
 import logzero
@@ -48,22 +46,21 @@ class MMClient:
 
     Examples
     --------
-    **Ex. 1:** Passing in all required parameters
+    **Ex. 1:** Passing in minimum required parameters
 
-    >>> import getpass
-    >>> aos = MMClient(
+    mmc = MMClient(
             mm_host="arubamm.domain.com",
             username="apiuser",
-            password=getpass.getpass()
-        )
+            password="the_password"
+            )
 
-    Instance can be created withou some or all of above attributes. User
+    Instance can be created without some or all of above attributes. User
     will be prompted for either one or more `mm_host`, `username`,
     `password`.
 
     **Ex. 2:** passing in just the host.
 
-    >>> aos = MMClient(mm_host="arubamm.domain.com")
+    >>> mmc = MMClient(mm_host="arubamm.domain.com")
     MM API username required. Should I use `donkey.kong` to continue [Y/n]?
     MM API password for user `donkey.kong` required:
 
@@ -72,11 +69,14 @@ class MMClient:
     >>> password = getpass.getpass()
     Password:
 
-    >>> aos = MMClient(username="apitest", password=password)
+    >>> mmc = MMClient(username="apitest", password=password)
     Mobility Master URL or IP required: arubamm.domain.com
+
+    **Ex. 4:** Using a proxy
+    To use a proxy specify it with the `proxy` parameter
     """
 
-    def __init__(self, mm_host=None, username=None, password=None, api_version=1, port=4343, verify=False, timeout=10):
+    def __init__(self, mm_host=None, username=None, password=None, api_version=1, port=4343, verify=False, timeout=10, proxy=str()):
         self.mm_host = mm_host
         self.username = username
         self.password = password
@@ -86,9 +86,21 @@ class MMClient:
         self.timeout = abs(timeout)
         self._access_token = ""
 
+        self.proxy = {}
+        if proxy:
+            self.proxy = {
+                'http': proxy,
+                'https': proxy
+                }
 
         # Set logging to ERROR to not display anything by default
         logzero.loglevel(logging.ERROR)
+
+    def comms(self):
+        """User prompt for getting username and/or password, if they haven't been
+        passed in with the constructor.
+        """
+        logger.info('Calling comms()')
 
         #
         # If MM URL or IP is not provided, ask for it
@@ -96,32 +108,23 @@ class MMClient:
         if not self.mm_host:
             self.mm_host = input("Mobility Master URL or IP required: ")
 
-
-        #
-        # If username not provided, ask for it
-        #
+        # If username not provided...
         if not self.username:
+            # ... ask for it
             user_input = input("MM API username required. Should I use `{}` to continue [Y/n]?".format(getpass.getuser()))
 
             # Option for a user if they want to specify a username
             if user_input.lower() == "n":
-                #kwargs.update({ 'username': input("Username:\x20") })
                 self.username = input("API username:\x20")
             # ...any other answer, just use their current username
             else:
                 self.username = getpass.getuser()
 
-
-        #
         # If password not provided, ask for it
-        #
         if not self.password:
-            #
-            # If password is not set, get the username to log into and ask the user
-            # for the password for that user
+            # If password is not set, get the username to log into and ask the
+            # user for the password for that user
             self.password = getpass.getpass("MM API password for user `{}` required:\x20".format(self.username))
-
-
 
         # Base API URL for requests
         self.mm_base_api_url = f"{self.mm_host}:{self.port}/v{self.api_version}"
@@ -146,8 +149,8 @@ class MMClient:
         self.session.headers.update(self.headers)
         self.session.verify = self.verify
         self.session.timeout = self.timeout
+        self.session.proxies = self.proxy
         self.session.mount(self.mm_base_api_url, HTTPAdapter(max_retries=3))
-        self.session.verify = self.verify
 
         assert_status_hook = lambda response, *args, **kwargs: response.raise_for_status()
         self.session.hooks["response"] = [assert_status_hook]
@@ -239,8 +242,6 @@ class MMClient:
 
         if 'config_path' in kwargs:
             params['config_path'] = kwargs['config_path']
-        #else kwargs.get('config_path', '/md')
-
 
         # If profile_name provided filter for its exact match in the request
         # and use the `filter_oper` if provided
@@ -285,7 +286,7 @@ class MMClient:
         Args:
         -----
         resource: `str`
-            The endpoint resource, e.g. 'configuration/object/ap_sys_prof'
+            The endpoint resource, ex. 'configuration/object/ap_sys_prof'
 
         Returns:
         --------
