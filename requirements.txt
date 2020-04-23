@@ -1,0 +1,5 @@
+requests
+mock
+responses
+logzero
+xmltodict
