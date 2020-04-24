@@ -3,4 +3,3 @@ mock
 responses
 logzero
 xmltodict
-pytest
