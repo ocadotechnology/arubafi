@@ -8,6 +8,8 @@ name: Depolying the package to test PyPi
 on:
   push:
     branches-ignore: master
+    tags:
+      - '*-[a-z]*'
 
 
 jobs:

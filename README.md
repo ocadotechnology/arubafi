@@ -6,7 +6,7 @@ Arubafi is a Python module for interfacing with the Aruba's stuff.
 
 ## Motivation
 
-To provide a scalable, easy to use and easy to contribute to module that will be able to interface with Aruba's APIs.
+To provide a scalable, easy to use and easy to contribute to Python module that will be able to interface with Aruba's APIs.
 
 # Installation
 
@@ -22,16 +22,16 @@ The module is imported with
 import arubafi
 ```
 but it is suggested you import the module you need for a specific task.
-For example if you need to work only with AIrWave import just that without
+For example if you need to work only with AirWave import just that.
 ```python
 from arubafi import AirWave
 ```
-# Usage
+# Usage workflow
 
 The usage workflow intended is:
-1. Create an instance with passing in the cloud and authentication options.
+1. Create an object instance.
 2. Initiate communication with the `comms()` method.
-3. Interface with the API with the use of either a specific endpoint method (like `wlans()` for example) or the `resource()` method.
+3. Interface with the API with the use of either a specific endpoint method.
 
 ## Create an instance
 
@@ -39,14 +39,14 @@ The usage workflow intended is:
 
 The minimum required for this option is to create an instance without any attributes like below.
 ```python
-mm = MMClient()
+mmc = MMClient()
 ```
 In this case you are asked for username and password.
 
 You can provide one or both when creating a new instance and be asked about the other once the `comms()` method is run.
 
 ```python
-mm = MMClient(aw_username="theuser")
+mmc = MMClient(aw_username="theuser")
 ```
 
 ## Communicating with the Mobility Master

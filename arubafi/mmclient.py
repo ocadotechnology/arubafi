@@ -166,7 +166,7 @@ class MMClient:
 
         Args:
         -----
-        ``config_path``: `str`, default '/md'
+        config_path: `str`, default '/md'
             The config path of the MM.
 
         **profile_name**: `str`, optional
@@ -195,7 +195,7 @@ class MMClient:
             returns all profiles who's names include the 'def' string
 
             [ {"ht_ssid_prof.profile-name" : { "$eq" : ["default"] } } ]
-            returns the profile who's name mathces the whole 'default' string
+            returns the profile who's name matches the whole 'default' string
 
         limit: `str`, optional
             The maximum number of instances of an object that a single GET
@@ -234,16 +234,17 @@ class MMClient:
         '''
         logger.info("Calling _params()")
 
+        # Set the default config path if none provided
         params = {
             "config_path": kwargs.get('config_path', '/md'),
             "UIDARUBA": self._access_token
         }
 
-
+        # If config path was provided with the kwargs, then rewrite the defualt
         if 'config_path' in kwargs:
             params['config_path'] = kwargs['config_path']
 
-        # If profile_name provided filter for its exact match in the request
+        # If `profile_name` provided filter for its exact match in the request
         # and use the `filter_oper` if provided
         if 'profile_name' in kwargs:
             profile_name_filter = [

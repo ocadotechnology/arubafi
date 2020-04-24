@@ -25,6 +25,7 @@ setup(
     install_requires     = [
         'requests',
         'logzero',
+        'xmltodict',
     ],
     tests_require        = [
         'responses',
