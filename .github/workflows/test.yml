@@ -42,7 +42,7 @@ jobs:
         pip install -e .
 
   deploy:
-    tags:
+    with_tags:
       - '*-[a-z]*'
 
     name: Deploy to Test PyPi
