@@ -1,8 +1,5 @@
 import requests
 import getpass
-import sys
-import time
-import yaml
 import json
 
 from requests.adapters import HTTPAdapter
@@ -344,7 +341,6 @@ class MMClient:
         except json.decoder.JSONDecodeError as e:
             logger.exception(f'Got a JSONDecodeError exception. Check the defined endpoint is correct\n')
             logger.exception(f"Response text:\n{response.text}")
-            #sys.stderr.write('Got a JSONDecodeError exception. Check the defined endpoint is correct\n')
             return None, None
 
         # Return propper values depending on the type of HTTP request and
@@ -379,31 +375,31 @@ class MMClient:
         except requests.exceptions.ConnectionError as exc:
             logger.exception(f'Got a {exc.__class__.__name__} exception\n')
             logger.error(error_msg)
-            sys.exit(0)
+            exit(0)
         except requests.RequestException as exc:
             logger.exception(f'Got a {exc.__class__.__name__} exception\n')
             logger.error(error_msg)
-            sys.exit(0)
+            exit(0)
         except requests.HTTPError as exc:
             logger.exception(f'Got a {exc.__class__.__name__} exception\n')
             logger.error(error_msg)
-            sys.exit(0)
+            exit(0)
         except requests.URLRequired as exc:
             logger.exception(f'Got a {exc.__class__.__name__} exception\n')
             logger.error(error_msg)
-            sys.exit(0)
+            exit(0)
         except requests.TooManyRedirects as exc:
             logger.exception(f'Got a {exc.__class__.__name__} exception\n')
             logger.error(error_msg)
-            sys.exit(0)
+            exit(0)
         except requests.ConnectTimeout as exc:
             logger.exception(f'Got a {exc.__class__.__name__} exception\n')
             logger.error(error_msg)
-            sys.exit(0)
+            exit(0)
         except requests.ReadTimeout as exc:
             logger.exception(f'Got a {exc.__class__.__name__} exception\n')
             logger.error(error_msg)
-            sys.exit(0)
+            exit(0)
 
         # Set the UIDARUBA as the API token
         if not login_resp_err:
