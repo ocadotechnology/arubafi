@@ -7,7 +7,7 @@ on:
   release:
     types: [published]
     tags:
-      - '*'
+      - [12].[0-9]+.[0-9]+
 
 
 jobs:
@@ -40,7 +40,7 @@ jobs:
 
   # Deploy it to PyPi
   deploy:
-    name: Deploy to PyPi
+    name: Deploy to production PyPi
     needs: build_and_test
     runs-on: ubuntu-latest
 
