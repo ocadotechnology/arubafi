@@ -6,10 +6,10 @@ name: Depolying the package to test PyPi
 on:
   push:
     branches-ignore: master
-    tags:
-      - 'v*-beta'
   release:
     types: [prereleased]
+    tags:
+      - '*-beta'
 
 jobs:
 
@@ -49,7 +49,21 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
 
     steps:
-    - name: Build sdist bdist_wheel ----- this one
+    - name: Check out repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v1
+
+    - name: Build dependancies
+      run: pip install -r requirements.txt
+
+    - name: Install dependencies for PyPi test upload
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools wheel twine
+
+    - name: Build sdist bdist_wheel for Test deployment
       run: |
         python setup.py sdist bdist_wheel
 
