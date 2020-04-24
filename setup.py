@@ -30,5 +30,6 @@ setup(
     tests_require        = [
         'responses',
         'pytest',
+        'mock',
     ],
 )

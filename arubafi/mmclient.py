@@ -274,6 +274,10 @@ class MMClient:
             params['offset'] = str(kwargs['offset'])
 
         logger.debug(f"Returned params: {params}")
+
+        print("KWARGS", kwargs)
+
+
         return params
 
     def _resource_url(self, resource):
