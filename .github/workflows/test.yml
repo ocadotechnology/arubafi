@@ -74,4 +74,4 @@ jobs:
       run: |
         echo ${{ secrets.PYPI_TOKEN_USERNAME }}
         twine check dist/*
-        twine upload --repository-url https://test.pypi.org/legacy/ --skip-existing dist/*
+        twine upload --repository-url https://test.pypi.org/legacy/ --skip-existing dist/* --verbose
