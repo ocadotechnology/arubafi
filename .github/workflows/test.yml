@@ -42,7 +42,7 @@ jobs:
 
     - name: Test PyPI variables
       run: |
-        echo ${{ secrets.PYPI_TOKEN_USERNAME }}
+        echo $PYPI_TOKEN_USERNAME
 
   deploy:
     name: Deploy to Test PyPi
