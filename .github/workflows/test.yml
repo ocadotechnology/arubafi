@@ -69,7 +69,7 @@ jobs:
 
     - name: Publish to Test PyPi
       env:
-        TWINE_USERNAME: ${{ secrets.PYPI_TOKEN_USERNAME }}
+        TWINE_USERNAME: __token__  #${{ secrets.PYPI_TOKEN_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.PYPI_TEST_TOKEN }}
       run: |
         twine check dist/*
