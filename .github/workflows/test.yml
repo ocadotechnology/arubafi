@@ -57,7 +57,7 @@ jobs:
         TWINE_PASSWORD: ${{ secrets.PYPI_TEST_TOKEN }}
       run: |
         twine check dist/*
-        twine upload --repository-url https://test.pypi.org/legacy/ --skip-existing dist/* --verbose
+        twine upload --repository-url https://test.pypi.org/legacy/ --skip-existing dist/*
 
 
 
