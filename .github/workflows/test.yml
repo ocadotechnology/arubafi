@@ -40,6 +40,22 @@ jobs:
       run: |
         pip install -e .
 
+
+
+
+    - name: Publish to Test PyPi
+      env:
+        TWINE_USERNAME: "__token__"  #${{ secrets.PYPI_TOKEN_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_TEST_TOKEN }}
+      run: |
+        twine check dist/*
+        twine upload --repository-url https://test.pypi.org/legacy/ --skip-existing dist/* --verbose
+
+
+
+
+
+
   deploy:
     name: Deploy to Test PyPi
     runs-on: ubuntu-latest
