@@ -7,8 +7,6 @@ on:
   push:
     branches-ignore:
       - master
-    tags:
-      - '*-[a-z]+'
   release:
     types: [prereleased]
 
