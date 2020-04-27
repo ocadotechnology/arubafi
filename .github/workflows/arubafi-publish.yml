@@ -16,7 +16,6 @@ on:
 
 jobs:
 
-  # Deploy to Test PyPi
   build_and_test:
     name: Build and Test the module
     runs-on: ubuntu-latest
