@@ -72,5 +72,6 @@ jobs:
         TWINE_USERNAME: "__token__"  #${{ secrets.PYPI_TOKEN_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.PYPI_TEST_TOKEN }}
       run: |
+        echo ${{ secrets.PYPI_TOKEN_USERNAME }}
         twine check dist/*
         twine upload --repository-url https://test.pypi.org/legacy/ --skip-existing dist/*
