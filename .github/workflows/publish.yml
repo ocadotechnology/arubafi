@@ -5,7 +5,8 @@ name: Depolying the package to prod PyPi
 
 on:
   push:
-    branches: master
+    branches:
+      - master
   release:
     types: [published]
     tags:

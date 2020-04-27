@@ -5,7 +5,8 @@ name: Depolying the package to test PyPi
 
 on:
   push:
-    branches-ignore: master
+    branches-ignore:
+      - master
   release:
     types: [prereleased]
     #tags:
