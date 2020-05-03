@@ -220,7 +220,7 @@ class AirWave(metaclass=OnlyOneInstance):
     ### instead.
     ##
     #
-    def _full_raw_airwave_inventory(self):
+    def _full_raw_airwave_inventory(self, return_in_dict=True):
         """Returns the WHOLE inventory in a dict (APs, IAPs, controllers and VCs) as returned
         by passing in ~/ap_list.xml without any parameters
         """
@@ -236,8 +236,10 @@ class AirWave(metaclass=OnlyOneInstance):
             # Convert the XML client_detail_resp into a dictionary
             self._inventory = xmltodict.parse(response.content)
 
-        #print(self._inventory)
-        return self._inventory
+            if return_in_dict:
+                return self._inventory
+            else:
+                return response
 
     def _create_inventory_dbs(self):
         """Creates inventory dictionaries (DBs), split into dicts for APs/IAPs,
@@ -354,6 +356,9 @@ class AirWave(metaclass=OnlyOneInstance):
         if not hasattr(self, '_controllers_db') or not self._controllers_db:
             self._create_inventory_dbs()
 
+        logger.debug(f'Data returned\n{self._controllers_db}')
+        logzero.loglevel(logging.ERROR)
+
         return self._controllers_db
 
     def _no_ptr_controller_inventory(self):
@@ -366,6 +371,9 @@ class AirWave(metaclass=OnlyOneInstance):
 
         if not hasattr(self, '_no_ptr_controllers_db') or not self._no_ptr_controllers_db:
             self._create_inventory_dbs()
+
+        logger.debug(f'Data returned\n{self._no_ptr_controllers_db}')
+        logzero.loglevel(logging.ERROR)
 
         return self._no_ptr_controllers_db
 
@@ -380,6 +388,9 @@ class AirWave(metaclass=OnlyOneInstance):
         if not hasattr(self, '_iapvc_db') or not self._iapvc_db:
             self._create_inventory_dbs()
 
+        logger.debug(f'Data returned\n{self._iapvc_db}')
+        logzero.loglevel(logging.ERROR)
+
         return self._iapvc_db
 
     def _controllerid_to_ap_inventory(self):
@@ -392,6 +403,9 @@ class AirWave(metaclass=OnlyOneInstance):
 
         if not hasattr(self, '_contrlollerid_to_ap_db') or not self._contrlollerid_to_ap_db:
             self._create_inventory_dbs()
+
+        logger.debug(f'Data returned\n{self._contrlollerid_to_ap_db}')
+        logzero.loglevel(logging.ERROR)
 
         return self._contrlollerid_to_ap_db
 
@@ -406,6 +420,9 @@ class AirWave(metaclass=OnlyOneInstance):
         if not hasattr(self, '_apname_to_controllerid_db') or not self._apname_to_controllerid_db:
             self._create_inventory_dbs()
 
+        logger.debug(f'Data returned\n{self._apname_to_controllerid_db}')
+        logzero.loglevel(logging.ERROR)
+
         return self._apname_to_controllerid_db
 
     def _controllerless_ap_inventory(self):
@@ -418,6 +435,9 @@ class AirWave(metaclass=OnlyOneInstance):
         if not hasattr(self, '_controllerless_ap_db') or not self._controllerless_ap_db:
             self._create_inventory_dbs()
 
+        logger.debug(f'Data returned\n{self._controllerless_ap_db}')
+        logzero.loglevel(logging.ERROR)
+
         return self._controllerless_ap_db
 
     def _all_items_inventory(self):
@@ -429,6 +449,9 @@ class AirWave(metaclass=OnlyOneInstance):
 
         if not hasattr(self, '_all_items_db') or not self._all_items_db:
             self._create_inventory_dbs()
+
+        logger.debug(f'Data returned\n{self._all_items_db}')
+        logzero.loglevel(logging.ERROR)
 
         return self._all_items_db
 

@@ -1,28 +1,27 @@
-# IGNORE ALL BELOW AS WORK STILL VERY MUCH IN PROGRESS
+# Table Of Contents
 
-# Arubafi
+[[ TOC ]]
 
-Arubafi is a Python module for interfacing with the Aruba's stuff.
+# What is arubafi?
 
-## Motivation
+Arubafi is a scalable and easy to use Python module capable of interfacing with Aruba's APIs.
 
-To provide a scalable, easy to use and easy to contribute to Python module that will be able to interface with Aruba's APIs.
+The module is intended for network reliability engineers that need to automate various tasks with regards to deployed, or soon to be deployed Aruba hardware or virtual appliances.
 
 # Installation
 
-The module can be pip installed
-
+The module can be pip installed with
 ```
 pip install arubafi
 ```
-or using `pip3` if using python3.
+or probably using `pip3` if having both Py2 and Py3 installed.
 
-The module is imported with
+The module is then imported with
 ```python
 import arubafi
 ```
 but it is suggested you import the module you need for a specific task.
-For example if you need to work only with AirWave import just that.
+For example if you need to work only with AirWave import just that, like so
 ```python
 from arubafi import AirWave
 ```
@@ -31,78 +30,113 @@ from arubafi import AirWave
 The usage workflow intended is:
 1. Create an object instance.
 2. Initiate communication with the `comms()` method.
-3. Interface with the API with the use of either a specific endpoint method.
+3. Interface with the API with the provided methods.
 
-## Create an instance
+# Mobility Master API
 
-**Ex: Using username and password.**
+Below is an explanation of to get up and running with the Mobility Master API (aka. Aruba OS8 for wireless)
 
 The minimum required for this option is to create an instance without any attributes like below.
 ```python
 mmc = MMClient()
 ```
-In this case you are asked for username and password.
+In this case, after calling the `comms()` method you are asked for the MM's FQDN, username and password.
 
 You can provide one or both when creating a new instance and be asked about the other once the `comms()` method is run.
 
+You can also provide one or all required attributes at instantiation.
 ```python
 mmc = MMClient(aw_username="theuser")
 ```
 
 ## Communicating with the Mobility Master
-You must call the `comms()` method on your instance, to setup the communication with AirWave
+You must call the `comms()` method on your instance, to setup the communication with your MM.
 ```python
 aw = comms()
 ```
 
-# Additional
+## Additional
+
+There are various other parameters you can use with the instance object, like port, proxy, api version, etc. You can read more about them in the docstring.
+
 ##Debugging
 
-The default debug level is `ERROR`, which can be changed per method call by preempting it with `logzero.loglevel(logging.LEVEL)` where `LEVEL` is the debug level.
-Each method then resets logging to `ERROR`, so you need to set logging level before each one.
+The default debug level is `ERROR`, which can be changed per method call by preempting it with `logzero.loglevel(logging.LEVEL)` where `LEVEL` is the logging level. Each method then resets logging to `ERROR`, so you need to set logging level before each one.
 
 **Ex. 1: DEBUG level**
 ```python
 >>> logzero.loglevel(logging.DEBUG)
->>> mm.whoami()
+>>> mm.write_mem()
+[I 200503 21:38:12 mmclient:506] Calling write_mem()
+[I 200503 21:38:12 mmclient:237] Calling _params()
+[D 200503 21:38:12 mmclient:281] Returned params: {'config_path': None, 'UIDARUBA': 'N2EyMDU5NGItZjRiYy00M2JhLWFjOTgtZWJk'}
+[I 200503 21:38:12 mmclient:334] Calling _api_call()
+[I 200503 21:38:12 mmclient:335] Method is: POST
+[I 200503 21:38:12 mmclient:336] SSL verify (False or cert path): False
+[D 200503 21:38:12 mmclient:340] Full URL: https://tp-dc-mm0.net.ocado.com:4343/v1/configuration/object/write_memory?UIDARUBA=N2EyMDU5NGItZjRiYy00M2JhLWFjOTgtZWJk
+[D 200503 21:38:12 mmclient:346] Response JSON: {'write_memory': {'_result': {'status': 0, 'status_str': 'Success'}}, '_global_result': {'status': 0, 'status_str': 'Success', '_pending': False}}
 ```
-```
-efdsd
-```
-
 **Ex. 2: INFO level**
 ```python
 >>> logzero.loglevel(logging.INFO)
->>> mm.whoami()
-```
-```
-[I 200326 14:58:23 arubafi:547] Calling whoami()
-[I 200326 14:58:23 arubafi:548] kwargs in: {}
-[I 200326 14:58:23 arubafi:511] Calling resource()
-[I 200326 14:58:23 arubafi:471] Calling _params()
-[I 200326 14:58:23 arubafi:472] kwargs in: {'uri': '/self'}
-[I 200326 14:58:23 arubafi:395] Calling _resource_url()
-[I 200326 14:58:23 arubafi:396] kwargs in: {'uri': '/self'}
-[I 200326 14:58:23 arubafi:333] Calling _api_call()
-[I 200326 14:58:23 arubafi:334] Method is: GET
-[I 200326 14:58:23 arubafi:346] Response status code: 200
+>>> mm.write_mem()
+[I 200503 21:39:22 mmclient:506] Calling write_mem()
+[I 200503 21:39:22 mmclient:237] Calling _params()
+[I 200503 21:39:22 mmclient:334] Calling _api_call()
+[I 200503 21:39:22 mmclient:335] Method is: POST
+[I 200503 21:39:22 mmclient:336] SSL verify (False or cert path): False
 ```
 
-**Ex. 3: Examples of error output**
-Here no log level was set.
+# AirWave API
+
+AirWaves API is quite different to what you could expect from a modern day one as it practically doesn't have any endpoints. There are about three available if not mistaken and only 2 of those are currently being used by this module, the `/client_detail.xml` and `/ap_detail.xml`.
+
+Note here that the returned data is in XML format, but that is handled by the module and for the resource methods data is retuned in JSON (dictionary) format. There is an option to get the data in the original XML format, with the use of the `_full_raw_airwave_inventory()` method with a `return_in_dict` argument set to `False`, but it would be surprising if you'd need to use that at all.
+
+The very important thing to remember here is that once you want to access any of the resource methods that get you the required database from AW, like `get_controller_inventory()`, which returns the database of the controller's id and it's FQDN mappings for example, ALL other databases are built as well. This is due to AW returning the whole DB of every element it holds when accessing the `/ap_detail.xml`, which can take tens of seconds to complete, depending on the number of elements in your AW and the hardware supporting it. Therefore it is much more efficient to build all DBs that the module returns at first call to any of the `get_` methods than for each one. Also due to this the AW class is made so that only one instance can be made in a script, so as to not overburden the AW with unnecessary calls.
+
+The minimum required for this option is to create an instance without any attributes like below.
 ```python
->>> mm.whoami()
+aw = AirWave()
 ```
+In this case, after calling the `comms()` method you are asked for the AW's FQDN, username and password.
+
+You can provide one or both when creating a new instance and be asked about the other once the `comms()` method is run.
+
+You can also provide one or all required attributes at instantiation.
+```python
+mmc = MMClient(aw_username="theuser")
 ```
-[E 200326 14:58:24 arubafi:351] Response Error:
-    {"detail":"Method \"GET\" not allowed."}
-[E 200326 14:58:24 arubafi:351] Response Error:
-    {"detail":"CSRF Failed: CSRF token missing or incorrect."}
+
+## Communicating with the Mobility Master
+You must call the `comms()` method on your instance, to setup the communication with your MM.
+```python
+aw = comms()
+```
+
+## Additional
+
+There are various other parameters you can use with the instance object, like port, proxy, api version, etc. You can read more about them in the docstring.
+
+##Debugging
+
+The default debug level is `ERROR`, which can be changed per method call by preempting it with `logzero.loglevel(logging.LEVEL)` where `LEVEL` is the logging level. Each method then resets logging to `ERROR`, so you need to set logging level before each one.
+
+**Ex. 1: DEBUG level**
+```python
+>>> logzero.loglevel(logging.DEBUG)
+>>> mm._controller_inventory()
+```
+**Ex. 2: INFO level**
+```python
+>>> logzero.loglevel(logging.INFO)
+>>> mm._controller_inventory()
 ```
 
 # TODO
 The general TODO list is:
-- add more/all URIs
+- add more/all Aruba systems
+- add mora/all API URIs
 
 # Contributing
 Thank you for helping us develop `arubafi`. We're happy to accept contribution of any kind. Feel free to submit feature requests and bug reports under Issues.

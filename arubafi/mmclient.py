@@ -79,7 +79,6 @@ class MMClient:
         self.password = password
         self.api_version = api_version
         self.port = port
-        self.verify = verify
         self.timeout = abs(timeout)
         self._access_token = ""
 
@@ -89,6 +88,12 @@ class MMClient:
                 'http': proxy,
                 'https': proxy
                 }
+
+        self.verify = verify
+        if self.verify == False:
+            # Disable warnings that come up, as we're not checking the cert
+            requests.packages.urllib3.disable_warnings()
+            logger.info("Not verifying SSL")
 
         # Set logging to ERROR to not display anything by default
         logzero.loglevel(logging.ERROR)
@@ -274,9 +279,6 @@ class MMClient:
             params['offset'] = str(kwargs['offset'])
 
         logger.debug(f"Returned params: {params}")
-
-        print("KWARGS", kwargs)
-
 
         return params
 
