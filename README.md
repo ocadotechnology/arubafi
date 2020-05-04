@@ -110,7 +110,7 @@ mm.ap_group(filter='[ {"ap_group.profile-name" : { "$eq" : ["default"] } } ]')
 
 For more information on how to use Aruba filters read the docstring and the associated Aruba API documentation.
 
-##Debugging
+## Debugging
 
 The default debug level is `ERROR`, which can be changed per method call by preempting it with `logzero.loglevel(logging.LEVEL)` where `LEVEL` is the logging level. Each method then resets logging to `ERROR`, so you need to set logging level before each one.
 
@@ -156,7 +156,7 @@ You can provide one or both when creating a new instance and be asked about the 
 
 You can also provide one or all required attributes at instantiation.
 ```python
-mmc = MMClient(aw_username="theuser")
+aw = AirWave(aw_username="theuser")
 ```
 
 ## Communicating with the Mobility Master
