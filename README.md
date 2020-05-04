@@ -49,15 +49,66 @@ You can also provide one or all required attributes at instantiation.
 mmc = MMClient(aw_username="theuser")
 ```
 
+There are various other parameters you can use with the instance object, like port, proxy, api version, etc. You can read more about them in the docstring.
+
 ## Communicating with the Mobility Master
 You must call the `comms()` method on your instance, to setup the communication with your MM.
 ```python
 aw = comms()
 ```
 
-## Additional
+## Using methods to get data
+For getting the data from your MM, you use the resource methods or the `resource` method itself. In either case you might need to pass in some arguments and for using the `resource` method itself, you will definitely need to pass in at least the method and endpoint from which you want to retrieve data.
 
-There are various other parameters you can use with the instance object, like port, proxy, api version, etc. You can read more about them in the docstring.
+The inbuilt resource methods begin their docsting with `RM` and are named as the endpoint as defined with Aruba API. For example, you use the `ap_group()` method to get data about AP groups at a certain `config_path` level from the `configuration/object/ap_group` URI. These methods are pretty similar to the `resource` one otherwise, but are here for easier (more human readable) interfacing with the API.
+
+**Ex.: Comparison between resource methods and the resource method itself**
+The below example shows that RMs use the resource() method with correct arguments passed in to GET or POST the data from an endpoint.
+```Python
+>>> mm.ap_group() == mm.resource(method='GET', endpoint='configuration/object/ap_group')
+True
+```
+
+**Ex: Basic getting of data**
+The below will return all defined AP groups at the `/md` config level.
+```python
+>>> mm.ap_group()
+"({'_data': {'ap_group': [{'profile-name': 'default', '_flags': ...."
+```
+### Config level
+The default config level (specified with the `config_path`) is `/md` unless specified otherwise.
+```python
+mm.ap_group(config_path='/md/mylevel_A/mylevel_B')
+```
+
+### Filtering
+Filters are activated when passing in a `profile_name` argument. If specifying only that though the filter will default to `$eq` (equals), so the `profile_name` must match what you are looking for
+
+```python
+>>> mm.ap_group(profile_name='default') == mm.ap_group(profile_name='default', filter_oper='$eq')
+True
+```
+
+You can pass in a `filter_oper` with the `profile_name` if you wish to have a different search option or if passing in a partial search string.
+**Ex. 1: partial search string with $in**
+This will return all profiles with `def` in their profile-name.
+```python
+mm.ap_group(profile_name='def', filter_oper='$in')
+```
+**Ex. 2: partial search string with $nin**
+This will return all profiles that `def` is NOT in their profile-name.
+```python
+mm.ap_group(profile_name='def', filter_oper='$nin')
+```
+
+You can even pass in the whole filter with the `filter` argument if you so wish. If using that it will override whichever else you wanted to use as a filter, i.e. The `profile_name` and `filter_oper` will be ignored in this case, as in the end the previous examples construct the same string as the example below has passed into it, but whereas you can only look for profile names with the `profile_name` and `filter_oper`, you can filter on anything else with the `filter` parameter.
+**Ex. 3: Passing in the whole filter**
+This will return all profiles that `def` is NOT in their profile-name.
+```python
+mm.ap_group(filter='[ {"ap_group.profile-name" : { "$eq" : ["default"] } } ]')
+```
+
+For more information on how to use Aruba filters read the docstring and the associated Aruba API documentation.
 
 ##Debugging
 

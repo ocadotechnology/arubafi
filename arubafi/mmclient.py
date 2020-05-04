@@ -171,9 +171,10 @@ class MMClient:
         config_path: `str`, default '/md'
             The config path of the MM.
 
-        **profile_name**: `str`, optional
+        profile_name: `str`, optional
             A full or partial profile-name to be searched on. If partial include
-            the proper 'filter_oper'.
+            the proper 'filter_oper' otherwise `$eq` will be used to match
+            exactly for that name.
 
         filter_oper: `str`, optional, default '$eq'
             An Aruba API defined filter operator:
@@ -623,7 +624,7 @@ class MMClient:
     hardcoded endpoint object.
     '''
     def ap_sys_profile(self, data=None, **kwargs):
-        '''GET or POST to an `ap_sys_prof` endpoint object.
+        '''RM to GET or POST to an `ap_sys_prof` endpoint object.
 
         If `data` passed method is POST and takes presedence over other
         attributes.
@@ -654,7 +655,7 @@ class MMClient:
         return self.resource(**kwargs)
 
     def wlan_ssid_profile(self, data=None, **kwargs):
-        '''GET or POST to an `ssid_prof` endpoint object.
+        '''RM to GET or POST to an `ssid_prof` endpoint object.
 
         If `data` passed method is POST and takes presedence over other
         attributes.
@@ -679,6 +680,37 @@ class MMClient:
 
         kwargs = self._kwargs_modify(
             'configuration/object/ssid_prof',
+            data,
+            **kwargs)
+
+    def ap_group(self, data=None, **kwargs):
+        '''RM to GET or POST to an `ap_group` endpoint object.
+
+        If `data` passed method is POST and takes presedence over other
+        attributes.
+
+        Args:
+        -----
+        profile_name: ``str``, optional
+            If passed in, it will search for that profile
+        data: `str`, optional
+            JSON formated payload. Same as requests json sent with the body of
+            the request. With this passed in, the HTTP method is always POST.
+        **kwargs:
+            These are passed to `self._kwargs_modify` and `self._params` to
+            create a propper request with params.
+
+        Returns:
+        --------
+        The same as what `self.resource` returns, which is response and
+        error or None if no error.
+        '''
+        logger.info("Calling ap_group()")
+        logger.debug(f'kwargs in: {kwargs}')
+        logger.debug(f'Data in: {data}')
+
+        kwargs = self._kwargs_modify(
+            'configuration/object/ap_group',
             data,
             **kwargs)
 
