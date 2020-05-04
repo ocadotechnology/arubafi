@@ -1,6 +1,6 @@
 # Table Of Contents
 
-[[ TOC ]]
+[[ __TOC__ ]]
 
 # What is arubafi?
 
