@@ -124,7 +124,7 @@ The default debug level is `ERROR`, which can be changed per method call by pree
 [I 200503 21:38:12 mmclient:334] Calling _api_call()
 [I 200503 21:38:12 mmclient:335] Method is: POST
 [I 200503 21:38:12 mmclient:336] SSL verify (False or cert path): False
-[D 200503 21:38:12 mmclient:340] Full URL: https://tp-dc-mm0.net.ocado.com:4343/v1/configuration/object/write_memory?UIDARUBA=N2EyMDU5NGItZjRiYy00M2JhLWFjOTgtZWJk
+[D 200503 21:38:12 mmclient:340] Full URL: https://your_host:4343/v1/configuration/object/write_memory?UIDARUBA=N2EyMDU5NGItZjRiYy00M2JhLWFjOTgtZWJk
 [D 200503 21:38:12 mmclient:346] Response JSON: {'write_memory': {'_result': {'status': 0, 'status_str': 'Success'}}, '_global_result': {'status': 0, 'status_str': 'Success', '_pending': False}}
 ```
 **Ex. 2: INFO level**
