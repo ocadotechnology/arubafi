@@ -2,11 +2,30 @@ import requests
 import getpass
 import json
 
+import time
+from functools import wraps
 from requests.adapters import HTTPAdapter
 
 import logging
 import logzero
 from logzero import logger
+
+
+def log(func):
+    @wraps(func)
+    def wrapped(*args, **kwargs):
+        logger.info(f'Calling {func.__name__}()')
+        logger.debug(f'kwargs in: {kwargs}')
+
+        start = time.time()
+        func_call = func(*args, **kwargs)
+        diff = start - time.time()
+        logger.debug(f'Call took {diff}s')
+
+        logzero.loglevel(logging.ERROR)
+
+        return func_call
+    return wrapped
 
 
 class MMClient:
@@ -95,15 +114,11 @@ class MMClient:
             requests.packages.urllib3.disable_warnings()
             logger.info("Not verifying SSL")
 
-        # Set logging to ERROR to not display anything by default
-        logzero.loglevel(logging.ERROR)
-
+    @log
     def comms(self):
         """User prompt for getting username and/or password, if they haven't been
         passed in with the constructor.
         """
-        logger.info('Calling comms()')
-
         #
         # If MM URL or IP is not provided, ask for it
         #
@@ -332,9 +347,8 @@ class MMClient:
         The full response in JSON format including `_global_result` AND
         The error if status string returned is not 0, else `None`.
         '''
-        logger.info("Calling _api_call()")
+        logger.info(f'Calling _api_call()')
         logger.info(f"Method is: {method.upper()}")
-        logger.info(f"SSL verify (False or cert path): {self.verify}")
 
         response = getattr(self.session, method.lower())(url, verify=self.verify, **kwargs)
         #response.raise_for_status()
@@ -359,11 +373,12 @@ class MMClient:
                 if jresp["_global_result"]["status"] == 0 or jresp["_global_result"]["status"] == '0':
                     return jresp, None
                 else:
-                    logger.debug(f'Error is: {jresp["_global_result"]}')
+                    #logger.debug(f'Error is: {jresp["_global_result"]}')
                     return jresp, jresp["_global_result"]
             else:
                 return None, logger.error(f"Config not written: {jresp}")
 
+    @log
     def _login(self):
         '''Login handler to loginto the Mobility Master server.
 
@@ -372,6 +387,8 @@ class MMClient:
         Either the response from the sucesfull login attempt or the error from
         it.
         '''
+        logger.info(f"SSL verify (False or cert path): {self.verify}")
+
         login_url = f'{self.mm_base_api_url}/api/login'
 
         error_msg = f'Calling _login() with host: {self.mm_host} & username: {self.username}'
@@ -415,7 +432,7 @@ class MMClient:
 
             # Reset logging to ERROR as this method is called through _api_call and
             # is not reset as if it were with by calling resource
-            logzero.loglevel(logging.ERROR)
+            #logzero.loglevel(logging.ERROR)
 
             return login_resp
         else:
@@ -424,10 +441,11 @@ class MMClient:
 
             # Reset logging to ERROR as this method is called through _api_call and
             # is not reset as if it were with by calling resource
-            logzero.loglevel(logging.ERROR)
+            #logzero.loglevel(logging.ERROR)
 
             return login_resp_err
 
+    @log
     def _kwargs_modify(self, api_endpoint, data=None, **kwargs):
         '''Modifies the `kwargs` depending if either POST-ing data or GET-ing
         it.
@@ -449,7 +467,6 @@ class MMClient:
         --------
         Modified `kwargs` passed in with the method.
         '''
-        logger.info("Calling _kwargs_modify()")
         logger.debug(f'Endpoint: {api_endpoint}')
         logger.debug(f'Data Payload: {data}')
 
@@ -467,6 +484,7 @@ class MMClient:
 
         return kwargs
 
+    @log
     def logout(self):
         '''Logs out of the current instance of MM
 
@@ -476,18 +494,17 @@ class MMClient:
 
         The error if status string returned is not 0, else it returns None
         '''
-        logger.info("Calling logout()")
-
         logout_url = f'{self.mm_base_api_url}/api/logout'
 
         jresp, jresp_err = self._api_call("get", logout_url)
 
         # Reset logging to ERROR as this method is called through _api_call and
         # is not reset as if it were with by calling resource
-        logzero.loglevel(logging.ERROR)
+        #logzero.loglevel(logging.ERROR)
 
         return jresp, jresp_err
 
+    @log
     def write_mem(self, config_path=None):
         '''Saves the config at the given `config_path` level.
 
@@ -504,19 +521,14 @@ class MMClient:
 
         The error if status string returned is not 0, else it returns None
         '''
-        logger.info("Calling write_mem()")
-
         url = f'{self.mm_base_api_url}/configuration/object/write_memory'
         params = self._params(config_path=config_path)
 
         jresp, jresp_err = self._api_call("POST", url, params=params)
 
-        # Reset logging to ERROR as this method is called through _api_call and
-        # is not reset as if it were with by calling resource
-        logzero.loglevel(logging.ERROR)
-
         return jresp, jresp_err
 
+    @log
     def resource(self, method, endpoint, jpayload=None, **kwargs):
         '''Actiones the HTTP request type defined with the `method` attribute to
         the defined `endpoint`.
@@ -597,8 +609,6 @@ class MMClient:
                 profile_name='test-01.ap_sys_prof')
 
         '''
-        logger.info("Calling _resource()")
-
         # Add the 'search' string used with the filter option used by the
         # self._params method.
         # For example this is the last element in the splited endpoint string.
@@ -615,7 +625,7 @@ class MMClient:
         jresp, jresp_err = self._api_call(method, resource_url, params=params, json=jpayload)
 
         # Reset logging to ERROR
-        logzero.loglevel(logging.ERROR)
+        #logzero.loglevel(logging.ERROR)
 
         return jresp, jresp_err
 
@@ -623,6 +633,7 @@ class MMClient:
     '''Below are defined resource methods, which are the ones with a
     hardcoded endpoint object.
     '''
+    @log
     def ap_sys_profile(self, data=None, **kwargs):
         '''RM to GET or POST to an `ap_sys_prof` endpoint object.
 
@@ -643,8 +654,6 @@ class MMClient:
         The same as what `self.resource` returns, which is response and
         error or None if no error.
         '''
-        logger.info("Calling ap_sys_profile()")
-        logger.debug(f'kwargs in: {kwargs}')
         logger.debug(f'Data in: {data}')
 
         kwargs = self._kwargs_modify(
@@ -654,6 +663,7 @@ class MMClient:
 
         return self.resource(**kwargs)
 
+    @log
     def wlan_ssid_profile(self, data=None, **kwargs):
         '''RM to GET or POST to an `ssid_prof` endpoint object.
 
@@ -674,8 +684,6 @@ class MMClient:
         The same as what `self.resource` returns, which is response and
         error or None if no error.
         '''
-        logger.info("Calling wlan_ssid_profile()")
-        logger.debug(f'kwargs in: {kwargs}')
         logger.debug(f'Data in: {data}')
 
         kwargs = self._kwargs_modify(
@@ -683,6 +691,7 @@ class MMClient:
             data,
             **kwargs)
 
+    @log
     def ap_group(self, data=None, **kwargs):
         '''RM to GET or POST to an `ap_group` endpoint object.
 
@@ -705,12 +714,382 @@ class MMClient:
         The same as what `self.resource` returns, which is response and
         error or None if no error.
         '''
-        logger.info("Calling ap_group()")
-        logger.debug(f'kwargs in: {kwargs}')
         logger.debug(f'Data in: {data}')
 
         kwargs = self._kwargs_modify(
             'configuration/object/ap_group',
+            data,
+            **kwargs)
+
+        return self.resource(**kwargs)
+
+    @log
+    def virtual_ap(self, data=None, **kwargs):
+        '''RM to GET or POST to an `virtual_ap` endpoint object.
+
+        If `data` passed method is POST and takes presedence over other
+        attributes.
+
+        Args:
+        -----
+        profile_name: ``str``, optional
+            If passed in, it will search for that profile
+        data: `str`, optional
+            JSON formated payload. Same as requests json sent with the body of
+            the request. With this passed in, the HTTP method is always POST.
+        **kwargs:
+            These are passed to `self._kwargs_modify` and `self._params` to
+            create a propper request with params.
+
+        Returns:
+        --------
+        The same as what `self.resource` returns, which is response and
+        error or None if no error.
+        '''
+        logger.debug(f'Data in: {data}')
+
+        kwargs = self._kwargs_modify(
+            'configuration/object/virtual_ap',
+            data,
+            **kwargs)
+
+        return self.resource(**kwargs)
+
+    @log
+    def ap_sys_prof(self, data=None, **kwargs):
+        '''RM to GET or POST to an `ap_sys_prof` endpoint object.
+
+        If `data` passed method is POST and takes presedence over other
+        attributes.
+
+        Args:
+        -----
+        profile_name: ``str``, optional
+            If passed in, it will search for that profile
+        data: `str`, optional
+            JSON formated payload. Same as requests json sent with the body of
+            the request. With this passed in, the HTTP method is always POST.
+        **kwargs:
+            These are passed to `self._kwargs_modify` and `self._params` to
+            create a propper request with params.
+
+        Returns:
+        --------
+        The same as what `self.resource` returns, which is response and
+        error or None if no error.
+        '''
+        logger.debug(f'Data in: {data}')
+
+        kwargs = self._kwargs_modify(
+            'configuration/object/ap_sys_prof',
+            data,
+            **kwargs)
+
+        return self.resource(**kwargs)
+
+    @log
+    def reg_domain_prof(self, data=None, **kwargs):
+        '''RM to GET or POST to an `reg_domain_prof` endpoint object.
+
+        If `data` passed method is POST and takes presedence over other
+        attributes.
+
+        Args:
+        -----
+        profile_name: ``str``, optional
+            If passed in, it will search for that profile
+        data: `str`, optional
+            JSON formated payload. Same as requests json sent with the body of
+            the request. With this passed in, the HTTP method is always POST.
+        **kwargs:
+            These are passed to `self._kwargs_modify` and `self._params` to
+            create a propper request with params.
+
+        Returns:
+        --------
+        The same as what `self.resource` returns, which is response and
+        error or None if no error.
+        '''
+        logger.debug(f'Data in: {data}')
+
+        kwargs = self._kwargs_modify(
+            'configuration/object/reg_domain_prof',
+            data,
+            **kwargs)
+
+        return self.resource(**kwargs)
+
+    @log
+    def dot11k_prof(self, data=None, **kwargs):
+        '''RM to GET or POST to an `dot11k_prof` endpoint object.
+
+        If `data` passed method is POST and takes presedence over other
+        attributes.
+
+        Args:
+        -----
+        profile_name: ``str``, optional
+            If passed in, it will search for that profile
+        data: `str`, optional
+            JSON formated payload. Same as requests json sent with the body of
+            the request. With this passed in, the HTTP method is always POST.
+        **kwargs:
+            These are passed to `self._kwargs_modify` and `self._params` to
+            create a propper request with params.
+
+        Returns:
+        --------
+        The same as what `self.resource` returns, which is response and
+        error or None if no error.
+        '''
+        logger.debug(f'Data in: {data}')
+
+        kwargs = self._kwargs_modify(
+            'configuration/object/dot11k_prof',
+            data,
+            **kwargs)
+
+        return self.resource(**kwargs)
+
+    @log
+    def dot11r_prof(self, data=None, **kwargs):
+        '''RM to GET or POST to an `dot11r_prof` endpoint object.
+
+        If `data` passed method is POST and takes presedence over other
+        attributes.
+
+        Args:
+        -----
+        profile_name: ``str``, optional
+            If passed in, it will search for that profile
+        data: `str`, optional
+            JSON formated payload. Same as requests json sent with the body of
+            the request. With this passed in, the HTTP method is always POST.
+        **kwargs:
+            These are passed to `self._kwargs_modify` and `self._params` to
+            create a propper request with params.
+
+        Returns:
+        --------
+        The same as what `self.resource` returns, which is response and
+        error or None if no error.
+        '''
+        logger.debug(f'Data in: {data}')
+
+        kwargs = self._kwargs_modify(
+            'configuration/object/dot11r_prof',
+            data,
+            **kwargs)
+
+        return self.resource(**kwargs)
+
+    @log
+    def ap_a_radio_prof(self, data=None, **kwargs):
+        '''RM to GET or POST to an `ap_a_radio_prof` endpoint object.
+
+        If `data` passed method is POST and takes presedence over other
+        attributes.
+
+        Args:
+        -----
+        profile_name: ``str``, optional
+            If passed in, it will search for that profile
+        data: `str`, optional
+            JSON formated payload. Same as requests json sent with the body of
+            the request. With this passed in, the HTTP method is always POST.
+        **kwargs:
+            These are passed to `self._kwargs_modify` and `self._params` to
+            create a propper request with params.
+
+        Returns:
+        --------
+        The same as what `self.resource` returns, which is response and
+        error or None if no error.
+        '''
+        logger.debug(f'Data in: {data}')
+
+        kwargs = self._kwargs_modify(
+            'configuration/object/ap_a_radio_prof',
+            data,
+            **kwargs)
+
+        return self.resource(**kwargs)
+
+    @log
+    def ht_radio_prof(self, data=None, **kwargs):
+        '''RM to GET or POST to an `ht_radio_prof` endpoint object.
+
+        If `data` passed method is POST and takes presedence over other
+        attributes.
+
+        Args:
+        -----
+        data: `str`, optional
+            JSON formated payload. Same as requests json sent with the body of
+            the request. With this passed in, the HTTP method is always POST.
+        **kwargs:
+            These are passed to `self._kwargs_modify` and `self._params` to
+            create a propper request with params.
+
+        Returns:
+        --------
+        The same as what `self.resource` returns, which is response and
+        error or None if no error.
+        '''
+        logger.debug(f'Data in: {data}')
+
+        kwargs = self._kwargs_modify(
+            'configuration/object/ht_radio_prof',
+            data,
+            **kwargs)
+
+        return self.resource(**kwargs)
+
+    @log
+    def node_hierarchy(self, data=None, **kwargs):
+        '''RM to GET or POST to an `node_hierarchy` endpoint object.
+
+        If `data` passed method is POST and takes presedence over other
+        attributes.
+
+        Args:
+        -----
+        data: `str`, optional
+            JSON formated payload. Same as requests json sent with the body of
+            the request. With this passed in, the HTTP method is always POST.
+        **kwargs:
+            These are passed to `self._kwargs_modify` and `self._params` to
+            create a propper request with params.
+
+        Returns:
+        --------
+        The same as what `self.resource` returns, which is response and
+        error or None if no error.
+        '''
+        logger.debug(f'Data in: {data}')
+
+        kwargs = self._kwargs_modify(
+            'configuration/object/node_hierarchy',
+            data,
+            **kwargs)
+
+        return self.resource(**kwargs)
+
+    @log
+    def add_configuration_device(self, data, **kwargs):
+        '''RM to GET or POST to an `add_configuration_device` endpoint object.
+
+        If `data` passed method is POST and takes presedence over other
+        attributes.
+
+        Args:
+        -----
+        data: `str`
+            JSON formated payload. Same as requests json sent with the body of
+            the request. With this passed in, the HTTP method is always POST.
+        **kwargs:
+            These are passed to `self._kwargs_modify` and `self._params` to
+            create a propper request with params.
+
+        Returns:
+        --------
+        The same as what `self.resource` returns, which is response and
+        error or None if no error.
+        '''
+        logger.debug(f'Data in: {data}')
+
+        kwargs = self._kwargs_modify(
+            'configuration/object/add_configuration_device',
+            data,
+            **kwargs)
+
+        return self.resource(**kwargs)
+
+    @log
+    def netdst(self, data=None, **kwargs):
+        '''RM to GET or POST to an `netdst` endpoint object.
+
+        If `data` passed method is POST and takes presedence over other
+        attributes.
+
+        Args:
+        -----
+        data: `str`, optional
+            JSON formated payload. Same as requests json sent with the body of
+            the request. With this passed in, the HTTP method is always POST.
+        **kwargs:
+            These are passed to `self._kwargs_modify` and `self._params` to
+            create a propper request with params.
+
+        Returns:
+        --------
+        The same as what `self.resource` returns, which is response and
+        error or None if no error.
+        '''
+        logger.debug(f'Data in: {data}')
+
+        kwargs = self._kwargs_modify(
+            'configuration/object/netdst',
+            data,
+            **kwargs)
+
+        return self.resource(**kwargs)
+
+    @log
+    def netsvc(self, data=None, **kwargs):
+        '''RM to GET or POST to an `netsvc` endpoint object.
+
+        If `data` passed method is POST and takes presedence over other
+        attributes.
+
+        Args:
+        -----
+        data: `str`, optional
+            JSON formated payload. Same as requests json sent with the body of
+            the request. With this passed in, the HTTP method is always POST.
+        **kwargs:
+            These are passed to `self._kwargs_modify` and `self._params` to
+            create a propper request with params.
+
+        Returns:
+        --------
+        The same as what `self.resource` returns, which is response and
+        error or None if no error.
+        '''
+        logger.debug(f'Data in: {data}')
+
+        kwargs = self._kwargs_modify(
+            'configuration/object/netsvc',
+            data,
+            **kwargs)
+
+        return self.resource(**kwargs)
+
+    @log
+    def acl_sess(self, data=None, **kwargs):
+        '''RM to GET or POST to an `acl_sess` endpoint object.
+
+        If `data` passed method is POST and takes presedence over other
+        attributes.
+
+        Args:
+        -----
+        data: `str`, optional
+            JSON formated payload. Same as requests json sent with the body of
+            the request. With this passed in, the HTTP method is always POST.
+        **kwargs:
+            These are passed to `self._kwargs_modify` and `self._params` to
+            create a propper request with params.
+
+        Returns:
+        --------
+        The same as what `self.resource` returns, which is response and
+        error or None if no error.
+        '''
+        logger.debug(f'Data in: {data}')
+
+        kwargs = self._kwargs_modify(
+            'configuration/object/acl_sess',
             data,
             **kwargs)
 
