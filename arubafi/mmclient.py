@@ -22,8 +22,6 @@ def log(func):
         diff = start - time.time()
         logger.debug(f'Call took {diff}s')
 
-        logzero.loglevel(logging.ERROR)
-
         return func_call
     return wrapped
 
@@ -175,6 +173,7 @@ class MMClient:
         # Finaly login
         self._login()
 
+    @log
     def _params(self, **kwargs):
         '''Parameters configurator for passing into the requests module
 
@@ -250,8 +249,6 @@ class MMClient:
         params: dict
             The full dict of parameters to be passed with the requets params attribute
         '''
-        logger.info("Calling _params()")
-
         # Set the default config path if none provided
         params = {
             "config_path": kwargs.get('config_path', '/md'),
@@ -298,6 +295,7 @@ class MMClient:
 
         return params
 
+    @log
     def _resource_url(self, resource):
         '''The resource URL formatter
 
@@ -312,7 +310,6 @@ class MMClient:
         --------
         The full URL string to the requested resource.
         '''
-        logger.info("Calling _resource_url()")
         url = str()
 
         if resource.startswith("/"):
@@ -324,6 +321,7 @@ class MMClient:
             logger.debug(f"URL to endpoint: {url}")
             return url
 
+    @log
     def _api_call(self, method, url, **kwargs):
         '''The API call handler.
 
@@ -347,11 +345,9 @@ class MMClient:
         The full response in JSON format including `_global_result` AND
         The error if status string returned is not 0, else `None`.
         '''
-        logger.info(f'Calling _api_call()')
         logger.info(f"Method is: {method.upper()}")
 
         response = getattr(self.session, method.lower())(url, verify=self.verify, **kwargs)
-        #response.raise_for_status()
         logger.debug(f"Full URL: {response.url}")
 
         # If response is wrong, for example if someone passes in the wrong
@@ -362,7 +358,10 @@ class MMClient:
         except json.decoder.JSONDecodeError as e:
             logger.exception(f'Got a JSONDecodeError exception. Check the defined endpoint is correct\n')
             logger.exception(f"Response text:\n{response.text}")
+            logzero.loglevel(logging.ERROR)
             return None, None
+
+        logzero.loglevel(logging.ERROR)
 
         # Return propper values depending on the type of HTTP request and
         # the response received from it
@@ -428,21 +427,9 @@ class MMClient:
         # Set the UIDARUBA as the API token
         if not login_resp_err:
             self._access_token = login_resp['_global_result']['UIDARUBA']
-            logger.debug(login_resp)
-
-            # Reset logging to ERROR as this method is called through _api_call and
-            # is not reset as if it were with by calling resource
-            #logzero.loglevel(logging.ERROR)
-
             return login_resp
         else:
-            logger.error("Login failed")
-            logger.debug(login_resp_err)
-
-            # Reset logging to ERROR as this method is called through _api_call and
-            # is not reset as if it were with by calling resource
-            #logzero.loglevel(logging.ERROR)
-
+            logger.error(f"Login failed:\n{login_resp_err}")
             return login_resp_err
 
     @log
@@ -497,10 +484,6 @@ class MMClient:
         logout_url = f'{self.mm_base_api_url}/api/logout'
 
         jresp, jresp_err = self._api_call("get", logout_url)
-
-        # Reset logging to ERROR as this method is called through _api_call and
-        # is not reset as if it were with by calling resource
-        #logzero.loglevel(logging.ERROR)
 
         return jresp, jresp_err
 
@@ -623,9 +606,6 @@ class MMClient:
 
         # Get the JSON response and error
         jresp, jresp_err = self._api_call(method, resource_url, params=params, json=jpayload)
-
-        # Reset logging to ERROR
-        #logzero.loglevel(logging.ERROR)
 
         return jresp, jresp_err
 
