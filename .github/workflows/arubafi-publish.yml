@@ -3,11 +3,16 @@
 ---
 name: Depolying the package to prod PyPi
 
-on: [push, pull_request]
-  branches:
-    - master
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
   release:
-    types: [published]
+    types:
+      - published
 
 jobs:
 
