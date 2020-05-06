@@ -12,7 +12,7 @@ on:
 
 jobs:
   build_and_test:
-    name: Build and Test the module
+    name: Build & Test
     runs-on: ubuntu-latest
 
     steps:
@@ -31,10 +31,12 @@ jobs:
         pip install setuptools wheel twine pytest
 
     - name: Test with pytest
-      run: pytest
+      run: |
+        pytest
 
     - name: Install localy
-      run: pip install -e .
+      run: |
+        pip install -e .
 
   # Deploy it to Prod PyPi
   deploy:
