@@ -12,8 +12,6 @@ on:
       - master
   release:
     types: [published]
-    tags:
-      - v**.**.**
 
 jobs:
 
