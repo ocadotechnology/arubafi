@@ -4,10 +4,13 @@
 name: Depolying the package to prod PyPi
 
 on:
-  release:
-    types: [published]
+  pull_request:
+    branches:
+      - master
     tags:
       - *
+  release:
+    types: [published]
 
 
 jobs:
