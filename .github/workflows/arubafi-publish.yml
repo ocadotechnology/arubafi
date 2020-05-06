@@ -6,7 +6,7 @@ name: Depolying the package to prod PyPi
 on:
   pull_request:
     branches:
-      - master
+      - !master
 #  release:
 #    types: [published]
 
