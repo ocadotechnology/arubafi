@@ -6,6 +6,8 @@ name: Depolying the package to prod PyPi
 on:
   release:
     types: [released]
+    branches:
+      - master
     tags:
       - '[0-9].[0-9]+.[0-9]+'
 
