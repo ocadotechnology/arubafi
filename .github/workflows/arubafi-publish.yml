@@ -1,7 +1,6 @@
 # This workflows will upload a Python Package using Twine when a release is created and tagged
 # For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
 ---
-name: Depolying the package to prod PyPi
 
 on:
   release:
@@ -9,6 +8,7 @@ on:
   tags:
     - '*'
 
+name: Depolying the package to prod PyPi
 
 jobs:
   build_and_test:
