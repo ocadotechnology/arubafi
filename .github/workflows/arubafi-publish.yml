@@ -7,8 +7,8 @@ on:
     types: [published]
     branches:
       - master
-    tags:
-      - '*'
+#    tags:
+#      - '*'
 
 name: Depolying the package to prod PyPi
 
