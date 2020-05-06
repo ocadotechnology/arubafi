@@ -5,8 +5,8 @@ name: Depolying the package to prod PyPi
 
 on:
   pull_request:
-    branches:
-      - !master
+    branches-ignore:
+      - master
 #  release:
 #    types: [published]
 
