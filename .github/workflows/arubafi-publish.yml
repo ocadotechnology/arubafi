@@ -5,8 +5,8 @@
 on:
   release:
     types: [published]
-  tags:
-    - '*'
+    tags:
+      - 'v*'
 
 name: Depolying the package to prod PyPi
 
