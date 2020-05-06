@@ -91,6 +91,9 @@ class MMClient:
     """
 
     def __init__(self, mm_host=None, username=None, password=None, api_version=1, port=4343, verify=False, timeout=10, proxy=str()):
+        # Set default logging to error_resp
+        logzero.loglevel(logging.ERROR)
+
         self.mm_host = mm_host
         self.username = username
         self.password = password
