@@ -20,7 +20,8 @@ jobs:
 
   build_and_test:
     name: Build and Test the module
-    runs-on: ubuntu-latest
+    runs-on: |
+      ubuntu-latest
 
     steps:
     - name: Check out repository
@@ -30,7 +31,8 @@ jobs:
       uses: actions/setup-python@v1
 
     - name: Build dependancies
-      run: pip install -r requirements.txt
+      run: |
+        pip install -r requirements.txt
 
     - name: Install dependencies for PyPi test upload
       run: |
@@ -38,10 +40,12 @@ jobs:
         pip install setuptools wheel twine pytest
 
     - name: Test with pytest
-      run: pytest
+      run: |
+        pytest
 
     - name: Install localy
-      run: pip install -e .
+      run: |
+        pip install -e .
 
   # Deploy it to PyPi
   deploy:
@@ -62,7 +66,8 @@ jobs:
         python-version: '3.x'
 
     - name: Build dependancies
-      run: pip install -r requirements.txt
+      run: |
+        pip install -r requirements.txt
 
     - name: Install dependencies
       run: |
@@ -70,10 +75,12 @@ jobs:
         pip install setuptools wheel twine
 
     - name: Build sdist bdist_wheel
-      run: python setup.py sdist bdist_wheel
+      run: |
+        python setup.py sdist bdist_wheel
 
     - name: Publish
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_TOKEN_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PROD_TOKEN }}
-      run: twine upload dist/*
+      run: |
+        twine upload dist/*
