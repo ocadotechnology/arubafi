@@ -2,13 +2,8 @@
 # For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
 ---
 
-on:
-  release:
-    types: [published]
-    branches:
-      - master
-#    tags:
-#      - '*'
+on: release
+
 
 name: Depolying the package to prod PyPi
 
