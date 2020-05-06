@@ -12,6 +12,9 @@ on:
       - master
   release:
     types: [published]
+    tags:
+      - *
+
 
 jobs:
 
@@ -35,12 +38,10 @@ jobs:
         pip install setuptools wheel twine pytest
 
     - name: Test with pytest
-      run: |
-        pytest
+      run: pytest
 
     - name: Install localy
-      run: |
-        pip install -e .
+      run: pip install -e .
 
   # Deploy it to PyPi
   deploy:
@@ -69,12 +70,10 @@ jobs:
         pip install setuptools wheel twine
 
     - name: Build sdist bdist_wheel
-      run: |
-        python setup.py sdist bdist_wheel
+      run: python setup.py sdist bdist_wheel
 
     - name: Publish
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_TOKEN_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PROD_TOKEN }}
-      run: |
-        twine upload dist/*
+      run: twine upload dist/*
