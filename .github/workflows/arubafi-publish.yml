@@ -5,8 +5,10 @@
 on:
   release:
     types: [published]
+    branches:
+      - master
     tags:
-      - 'v*'
+      - '*'
 
 name: Depolying the package to prod PyPi
 
