@@ -9,6 +9,8 @@ on:
       - master
   release:
     types: [published]
+    tags:
+      - '*'
 
 
 jobs:
