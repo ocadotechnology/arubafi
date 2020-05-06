@@ -6,6 +6,8 @@ name: Depolying the package to prod PyPi
 on:
   release:
     types: [published]
+  tags:
+    - '*'
 
 
 jobs:
