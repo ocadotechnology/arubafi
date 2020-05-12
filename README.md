@@ -1,6 +1,9 @@
+[![Downloads](https://pepy.tech/badge/arubafi)](https://pepy.tech/project/arubafi)
+
 # Table Of Contents
 
-[[ __TOC__ ]]
+-   [What is arubafi?](#what-is-arubafi)
+-   [Installation](#installation)
 
 # What is arubafi?
 
