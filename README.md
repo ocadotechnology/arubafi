@@ -1,7 +1,5 @@
 [![Downloads](https://pepy.tech/badge/arubafi)](https://pepy.tech/project/arubafi)
 
-# arubafi
-
 **arubafi** is a scalable and easy to use Python module capable of interfacing with Aruba's APIs.
 
 The module is intended for network reliability engineers that need to automate various tasks with regards to deployed, or soon to be deployed Aruba hardware or virtual appliances.
