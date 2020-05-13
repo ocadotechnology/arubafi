@@ -4,6 +4,8 @@
 
 The module is intended for network reliability engineers that need to automate various tasks with regards to deployed, or soon to be deployed Aruba hardware or virtual appliances.
 
+__documentation is still work in progress__
+
 # Table Of Contents
 
 - [Installation](#installation)
