@@ -1,12 +1,22 @@
-# Table Of Contents
+[![Downloads](https://pepy.tech/badge/arubafi)](https://pepy.tech/project/arubafi)
 
-[[ __TOC__ ]]
-
-# What is arubafi?
-
-Arubafi is a scalable and easy to use Python module capable of interfacing with Aruba's APIs.
+**arubafi** is a scalable and easy to use Python module capable of interfacing with some Aruba APIs (Mobility Master and AirWave for now).
 
 The module is intended for network reliability engineers that need to automate various tasks with regards to deployed, or soon to be deployed Aruba hardware or virtual appliances.
+
+_(Documentation is still work in progress)_
+
+# Table Of Contents
+
+- [Installation](#installation)
+- [Usage workflow](#usage-workflow)
+- [Mobility Master API](#mobility-master-api)
+  - [Communicating with the Mobility Master](#communicating-with-the-mobility-master)
+  - [Using methods to get data](#using-methods-to-get-data)
+    - [Config level](#config-level)
+    - [Filtering](#filtering)
+  - [Debugging](#debugging)
+- [AirWave API](#airwave-api)
 
 # Installation
 
